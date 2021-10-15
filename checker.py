@@ -160,7 +160,7 @@ class Checker:
         """ Get footprint from coordinates """
         # coords format: 'lon lat lon lat....'
         geojson = self._createGeoJSON()
-        return geojson_to_wkt(geojson)
+        return geojson_to_wkt(geojson, 14)
     
     def _get_hub_ids(self):
         ids = []

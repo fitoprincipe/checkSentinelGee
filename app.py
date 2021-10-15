@@ -1,6 +1,5 @@
-from flask import Flask, request, send_file
+from flask import Flask, request
 from checker import Checker, get_api
-from io import BytesIO
 import os
 from dotenv import load_dotenv
 

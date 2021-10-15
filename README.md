@@ -34,6 +34,7 @@ var check = new checker.Checker(geometry, level, start, end, endpoint);
 
 print(ui.Label('CHECK', null, check.url()))
 ```
+https://code.earthengine.google.com/4a5472d6d80990ce58afa385cf5f9adc
 
 If you hit an error that says:
 

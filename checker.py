@@ -1,5 +1,11 @@
 from sentinelsat import SentinelAPI, geojson_to_wkt
+from dotenv import load_dotenv
+import os
+from requests.auth import HTTPBasicAuth
+import requests
+import base64
 
+load_dotenv()  # Load environment variable from .env
 
 coords = '-68.45317820662159 -26.35042608088762 -62.36675242537159 -26.35042608088762 -62.36675242537159 -22.002031348439377 -68.45317820662159 -22.002031348439377 -68.45317820662159 -26.35042608088762'
 start = '20210920'
@@ -32,6 +38,7 @@ class Checker:
     <th>Is available in GEE?</th>
     <th>Is online in S2 Hub?</th>
     <th>Code Editor</th>
+    <th>Preview</th>
   </tr>
   {content}
 </table>
@@ -42,6 +49,7 @@ class Checker:
   <td>{ingee}</td>
   <td>{online}</td>
   <td>{codeeditor}</td>
+  <td>{preview}</td>
 </tr>"""
 
     def __init__(self, coords, start, end, level, ingee, api, 
@@ -90,7 +98,19 @@ class Checker:
             )
             self._products = products
         return self._products
-    
+
+    def preview_tag(self, pid):
+        """ Return a <img> tag for the requested product id """
+        data = self.api.get_product_odata(pid)
+        url = data['quicklook_url']
+        user = os.environ['HUB_USER']
+        password = os.environ['HUB_PASS']
+        r = requests.get(url, auth=HTTPBasicAuth(user, password))
+        c = r.content
+        c64 = base64.b64encode(c)
+        tag_template = '<img width="150" height="150" src="data:image/jpg;base64, {}">'
+        return tag_template.format(c64.decode('utf-8'))
+
     def _isTOA(self):
         if self.level.lower() in ['l1c', 'level-1c', 'toa', 'level1c']:
             return True
@@ -157,18 +177,19 @@ class Checker:
         for hid, pid in hubIDs:
             online = self.api.is_online(pid)
             code = self.code_editor(pid)
-            final = [hid, hid in self.ingeelist, online, code]
+            img = self.preview_tag(pid)
+            final = [hid, hid in self.ingeelist, online, code, img]
             data.append(final)
         return data
     
     def _format_row(self, row):
-        esaid, ingee, online, code = row
+        esaid, ingee, online, code, img = row
         av = 'YES' if ingee else 'NO'
         onl = 'YES' if online else 'NO'
         color = 'green' if ingee else 'red'
         return self.ROW.format(color=color, esaid=esaid, 
                                ingee=av, online=onl, 
-                               codeeditor=code)
+                               codeeditor=code, preview=img)
     
     def create_html(self):
         """ Products is a list of ((esaID, available on gee, online in ESA,

@@ -24,9 +24,11 @@ on Heroku so it has its limitations.
 var checker = require('users/fitoprincipe/s2checker:main')
 
 // Local endpoint. Uncomment this line if the server is running locally
-//var endpoint = 'http://127.0.0.1:5000/check';
+//var endpoint = 'http://127.0.0.1:5000/check'; // local
+//var endpoint2 = 'https://checkSentinelGee.rodrigoprincipe.repl.co/check';
 var endpoint = null;
 
+// DRAW A GEOMETRY to get `geometry` variable
 var level = 'toa' // or 'sr'
 var start = '2021-09-15'
 var end = '2021-09-21'
